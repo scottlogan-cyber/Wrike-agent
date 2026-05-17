@@ -1,0 +1,21 @@
+name: creative-team
+description: In-house creative team with review workflows
+default_scale: small
+custom_fields:
+  - title: Asset Type
+    type: DropDown
+    settings:
+      values: [Video, Static, Copy, Motion]
+  - title: Review Stage
+    type: DropDown
+    settings:
+      values: [Brief, Draft, Review, Approved, Published]
+spaces:
+  - title: "{prospect} — Creative Ops"
+    folders:
+      - title: Campaign Assets
+        sample_tasks_count: 10
+      - title: Brand Library
+        sample_tasks_count: 5
+talk_track: |
+  Demo review-stage field and how creatives move assets from brief to published.

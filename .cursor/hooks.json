@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "hooks": {
+    "postToolUse": [
+      {
+        "command": "node agent/hooks/log-tool-use.mjs"
+      }
+    ]
+  }
+}

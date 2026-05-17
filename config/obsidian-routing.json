@@ -1,0 +1,6 @@
+{
+  "integration_scoping": "01-Engagements/Integrations",
+  "demo_prep": "02-Sales/Demos",
+  "account_cleanup": "03-Engagements/Cleanup",
+  "default": "00-Inbox"
+}

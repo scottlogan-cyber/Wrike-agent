@@ -1,0 +1,5 @@
+{
+  "name": "intake",
+  "model": "composer-2",
+  "systemPromptFile": "../../agent/src/prompts/intake.md"
+}

@@ -1,0 +1,33 @@
+# Paste into: https://api.slack.com/apps/A0B4AL450AE/app-manifest
+# Then Install App → Install to Workspace
+
+_metadata:
+  major_version: 2
+  minor_version: 1
+
+display_information:
+  name: Leonidas
+  description: Wrike Solution Consultant agent — DMs Scott on new tasks and approvals.
+  background_color: "#8b1a1a"
+
+features:
+  bot_user:
+    display_name: Leonidas
+    always_online: true
+
+oauth_config:
+  scopes:
+    bot:
+      - chat:write
+      - chat:write.public
+      - users:read
+      - users:read.email
+      - im:write
+
+settings:
+  interactivity:
+    is_enabled: true
+    # Set after tunnel is up (Cloudflare/ngrok → port 8000)
+    request_url: https://YOUR_TUNNEL_HOST/webhook/slack
+  org_deploy_enabled: false
+  socket_mode_enabled: false

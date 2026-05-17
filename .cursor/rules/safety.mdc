@@ -1,0 +1,9 @@
+---
+description: Safety rules for Wrike agent
+alwaysApply: true
+---
+
+- Never write to Scott's real Wrike account or Obsidian vault without an explicit approval event from the UI or Slack.
+- The Architect may only use demo-account REST tools (WRIKE_DEMO_PAT).
+- Kratos must not write customer-facing data; only code, incidents, and PRs.
+- Respect the 4 Slack DM per task notification budget.

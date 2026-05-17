@@ -1,0 +1,30 @@
+name: marketing-agency
+description: Marketing agency running paid, organic, and influencer campaigns
+default_scale: medium
+custom_fields:
+  - title: Campaign Type
+    type: DropDown
+    settings:
+      values: [Paid Social, Organic, Influencer, Email, Display]
+  - title: Budget
+    type: Currency
+    settings:
+      currency: USD
+  - title: Campaign Status
+    type: DropDown
+    settings:
+      values: [Briefing, In Production, In Review, Live, Wrapped]
+spaces:
+  - title: "{prospect} — Marketing Operations"
+    folders:
+      - title: Q3 Campaigns
+        custom_item_type: campaign
+        sample_tasks_count: 15
+      - title: Always-On Programs
+        custom_item_type: program
+        sample_tasks_count: 8
+      - title: Briefs & Approvals
+        sample_tasks_count: 7
+talk_track: |
+  Open in {prospect}'s space. Show Campaign Type + Budget + Status custom fields
+  for a single-pane CMO view. Pivot to Briefs & Approvals for request → automation.

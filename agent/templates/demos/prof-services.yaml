@@ -1,0 +1,19 @@
+name: prof-services
+description: Professional services delivery and client engagements
+default_scale: medium
+custom_fields:
+  - title: Engagement Type
+    type: DropDown
+    settings:
+      values: [Discovery, Implementation, Support, Renewal]
+  - title: Billable Hours
+    type: Numeric
+spaces:
+  - title: "{prospect} — Client Delivery"
+    folders:
+      - title: Active Engagements
+        sample_tasks_count: 12
+      - title: Proposals & SOWs
+        sample_tasks_count: 8
+talk_track: |
+  Show engagement-type custom fields and how consultants track billable work in Wrike.

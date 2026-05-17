@@ -1,0 +1,17 @@
+{
+  "name": "wrike-agent",
+  "private": true,
+  "workspaces": ["agent", "ui"],
+  "scripts": {
+    "dev": "concurrently -n agent,ui -c blue,green \"npm run dev -w agent\" \"npm run dev -w ui\"",
+    "dev:agent": "npm run dev -w agent",
+    "dev:ui": "npm run dev -w ui",
+    "hello-cursor": "npm run hello-cursor -w agent",
+    "slack-setup": "npm run slack-setup -w agent",
+    "build": "npm run build -w agent && npm run build -w ui",
+    "eval": "npm run eval -w agent"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

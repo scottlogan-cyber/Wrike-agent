@@ -1,0 +1,1 @@
+{ "name": "kratos-ia", "model": "claude-opus-4-7", "systemPromptFile": "../../agent/src/prompts/kratos-ia.md" }

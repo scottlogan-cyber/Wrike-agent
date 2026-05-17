@@ -1,0 +1,17 @@
+[
+  {
+    "task_id": "VRC-1183",
+    "title": "Acme integration scoping",
+    "expected_topic": "integration"
+  },
+  {
+    "task_id": "ACM-882",
+    "title": "Demo prep for Globex",
+    "expected_topic": "demo"
+  },
+  {
+    "task_id": "DLT-441",
+    "title": "Account cleanup — Initech",
+    "expected_topic": "cleanup"
+  }
+]

@@ -1,0 +1,1 @@
+{ "name": "researcher", "model": "composer-2", "systemPromptFile": "../../agent/src/prompts/researcher.md" }

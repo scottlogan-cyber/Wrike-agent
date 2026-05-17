@@ -1,0 +1,1 @@
+{ "name": "transcript_hunter", "model": "composer-2", "systemPromptFile": "../../agent/src/prompts/transcript_hunter.md" }
