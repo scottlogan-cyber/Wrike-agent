@@ -1,5 +1,7 @@
 # Wrike Solution Consultant Agent (Leonidas)
 
+Leonidas and his watchdog Kratos — local agents for Wrike solution consulting.
+
 Local event-driven agent that watches your Wrike queue, researches topics, hunts Salesloft transcripts, drafts subtasks and Obsidian notes for approval, and surfaces everything in a Spartan Tamagotchi UI.
 
 **Repository:** [github.com/scottlogan-cyber/Wrike-agent](https://github.com/scottlogan-cyber/Wrike-agent)
@@ -8,7 +10,7 @@ Local event-driven agent that watches your Wrike queue, researches topics, hunts
 
 ```bash
 cp .env.example .env
-# Fill in tokens (see .env.example)
+# Set CURSOR_API_KEY for real subagents; WRIKE_ACCESS_TOKEN for live Wrike reads
 
 npm install
 npm run dev
@@ -25,6 +27,22 @@ npm run hello-cursor -- "what's 2+2"
 make eval
 curl http://localhost:8000/health
 ```
+
+## Test agents (no Slack)
+
+Slack DMs are skipped when `SLACK_BOT_TOKEN` is unset. The pipeline still runs and events appear in the UI.
+
+1. Set `CURSOR_API_KEY` in `.env` for real subagents (otherwise deterministic heuristics run).
+2. `npm run dev` — open http://localhost:3000
+3. Trigger a fake task:
+
+```bash
+curl -X POST http://localhost:8000/webhook/wrike \
+  -H 'Content-Type: application/json' \
+  -d '{"taskId":"DEMO-001","title":"Integration scoping for Acme Corp"}'
+```
+
+Watch **Roster**, **Battle Log**, and **Forge** (approval cards) update over WebSocket.
 
 ## Architecture
 
@@ -44,22 +62,8 @@ Leonidas cannot read tokens from the **desktop Slack app** — you need a [Slack
 1. Follow [docs/slack-setup.md](docs/slack-setup.md) to create **Leonidas** and copy `xoxb-...` + signing secret.
 2. Run: `SLACK_BOT_TOKEN=xoxb-... npm run slack-setup` — writes your user ID to `.env`.
 
-A browser sign-in for `scott.logan@team.wrike.com` was started in Cursor’s browser panel; finish login there, then create the app.
-
 ## Tunnel (Slack interactive)
 
 Expose port 8000 with Cloudflare Tunnel or ngrok and set Slack Interactive URL to `https://<tunnel>/webhook/slack`.
-
-## Publish to GitHub
-
-Local `main` is ahead of the remote (remote is only an initial README). After reviewing changes:
-
-```bash
-cd ~/wrike-agent
-git add -A
-git commit -m "Implement Leonidas Wrike agent (phases 0–7)"
-git pull origin main --allow-unrelated-histories
-git push -u origin main
-```
 
 Set `GITHUB_REPO=scottlogan-cyber/Wrike-agent` in `.env` so Kratos cloud runs target this repo.
