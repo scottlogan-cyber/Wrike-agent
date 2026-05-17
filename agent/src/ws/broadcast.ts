@@ -1,10 +1,45 @@
 import type { WebSocket } from "ws";
-import type { ServerMessage } from "./schema.js";
+import { getActiveTasks } from "../state/tasks.js";
+import { listAllPendingApprovals } from "../state/approvals.js";
 
 const clients = new Set<WebSocket>();
 
+function approvalToDraft(row: {
+  id: string;
+  kind: string;
+  target: string;
+  current_json: string | null;
+  proposed_json: string | null;
+}) {
+  return {
+    id: row.id,
+    kind: row.kind,
+    target: row.target,
+    current: row.current_json ?? undefined,
+    proposed: row.proposed_json ?? "",
+  };
+}
+
+export function sendClientSnapshot(ws: WebSocket): void {
+  if (ws.readyState !== 1) return;
+  const tasks = getActiveTasks().map((t) => ({
+    task_id: t.task_id,
+    title: t.title ?? t.task_id,
+    state: t.state,
+  }));
+  const drafts = listAllPendingApprovals().map(approvalToDraft);
+  ws.send(
+    JSON.stringify({
+      type: "snapshot",
+      ts: new Date().toISOString(),
+      payload: { tasks, drafts },
+    })
+  );
+}
+
 export function registerClient(ws: WebSocket): void {
   clients.add(ws);
+  sendClientSnapshot(ws);
   ws.on("close", () => clients.delete(ws));
 }
 

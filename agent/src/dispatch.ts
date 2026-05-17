@@ -97,9 +97,23 @@ async function runHeuristic(
       };
     case "transcript_hunter": {
       const call = payload.transcript_call as { id?: string } | undefined;
-      const transcript = call?.id
-        ? await fetchTranscript(call.id)
-        : "Transcript placeholder — configure SALESLOFT_TOKEN for live data.";
+      const useLive =
+        call?.id &&
+        !call.id.startsWith("dev-") &&
+        Boolean(process.env.SALESLOFT_TOKEN);
+      let transcript =
+        "Transcript placeholder — configure SALESLOFT_TOKEN for live data.";
+      if (useLive && call?.id) {
+        try {
+          transcript = await fetchTranscript(call.id);
+        } catch {
+          transcript =
+            "Transcript unavailable (Salesloft fetch failed) — using stub summary.";
+        }
+      } else if (call?.id?.startsWith("dev-")) {
+        transcript =
+          "Dev transcript stub: customer wants Wrike ↔ Salesforce sync, weekly status rituals, and API-based provisioning.";
+      }
       return {
         call_id: call?.id ?? "unknown",
         call_date: new Date().toISOString(),

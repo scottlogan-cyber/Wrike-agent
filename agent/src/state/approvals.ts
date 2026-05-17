@@ -52,6 +52,14 @@ export function listPendingApprovals(taskId: string): ApprovalRow[] {
     .all(taskId) as ApprovalRow[];
 }
 
+export function listAllPendingApprovals(): ApprovalRow[] {
+  return getDb()
+    .prepare(
+      `SELECT * FROM approvals WHERE decision IS NULL ORDER BY created_at`
+    )
+    .all() as ApprovalRow[];
+}
+
 export function resolveApproval(
   id: string,
   decision: string,

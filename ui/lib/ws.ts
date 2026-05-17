@@ -130,6 +130,29 @@ export function connectAgentWs(): void {
     resetIdle();
 
     switch (msg.type) {
+      case "snapshot": {
+        const p = msg.payload as {
+          tasks: TaskView[];
+          drafts: DraftView[];
+        };
+        for (const t of p.tasks ?? []) store.upsertTask(t);
+        if (p.drafts?.length) {
+          const drafts = p.drafts.map((d) => ({
+            ...d,
+            proposed:
+              typeof d.proposed === "string"
+                ? d.proposed
+                : JSON.stringify(d.proposed, null, 2),
+            current:
+              d.current !== undefined ? String(d.current) : undefined,
+          }));
+          store.setDrafts(drafts);
+        }
+        const latest = p.tasks?.[0];
+        if (latest) store.setFocusedTask(latest.task_id);
+        store.pushLog(`Loaded ${p.tasks?.length ?? 0} task(s) from the agora`);
+        break;
+      }
       case "task_discovered": {
         const p = msg.payload as { task_id: string; title: string };
         store.upsertTask({ task_id: p.task_id, title: p.title, state: "discovered" });
