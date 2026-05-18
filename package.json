@@ -9,7 +9,8 @@
     "hello-cursor": "npm run hello-cursor -w agent",
     "slack-setup": "npm run slack-setup -w agent",
     "build": "npm run build -w agent && npm run build -w ui",
-    "eval": "npm run eval -w agent"
+    "eval": "npm run eval -w agent",
+    "test": "npm run test -w ui"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"

@@ -21,6 +21,8 @@ export const serverMessageSchema = z.discriminatedUnion("type", [
       from: z.string(),
       to: z.string(),
       reason: z.string().optional(),
+      title: z.string().optional(),
+      client_name: z.string().nullable().optional(),
     }),
   }),
   z.object({
@@ -154,7 +156,11 @@ export const clientMessageSchema = z.discriminatedUnion("type", [
   }),
   z.object({
     type: z.literal("chat"),
-    payload: z.object({ text: z.string() }),
+    payload: z.object({
+      text: z.string(),
+      active_hut_id: z.string().optional(),
+      hut_label: z.string().optional(),
+    }),
   }),
   z.object({
     type: z.literal("force_rerun"),

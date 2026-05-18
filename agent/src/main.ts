@@ -72,7 +72,10 @@ app.register(async (fastify) => {
               });
             }
           } else {
-            const reply = await handleChat(text);
+            const reply = await handleChat(text, {
+              activeHutId: msg.payload.active_hut_id,
+              hutLabel: msg.payload.hut_label,
+            });
             broadcast({ type: "chat_reply", payload: { text: reply } });
           }
         }

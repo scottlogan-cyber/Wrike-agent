@@ -26,6 +26,7 @@ export function sendClientSnapshot(ws: WebSocket): void {
     task_id: t.task_id,
     title: t.title ?? t.task_id,
     state: t.state,
+    client_name: t.client_name ?? null,
   }));
   const drafts = listAllPendingApprovals().map(approvalToDraft);
   ws.send(

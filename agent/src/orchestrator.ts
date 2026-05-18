@@ -22,6 +22,17 @@ import { getSubtasks, updateSubtaskDescription } from "./tools/wrike-client.js";
 import { writeObsidianNote } from "./tools/obsidian.js";
 import { listPendingApprovals, resolveApproval, getApproval } from "./state/approvals.js";
 
+function stateChangePayload(taskId: string, from: string, to: string) {
+  const t = getTask(taskId);
+  return {
+    task_id: taskId,
+    from,
+    to,
+    title: t?.title ?? taskId,
+    client_name: t?.client_name ?? null,
+  };
+}
+
 export async function onTaskDiscovered(
   taskId: string,
   meta: { title: string; assigner?: string; source: string }
@@ -74,11 +85,7 @@ export async function runIntake(taskId: string): Promise<void> {
   broadcast({
     type: "state_change",
     task_id: taskId,
-    payload: {
-      task_id: taskId,
-      from: "discovered",
-      to: "triaged",
-    },
+    payload: stateChangePayload(taskId, "discovered", "triaged"),
   });
 
   await sendTaskSlackDm(
@@ -115,7 +122,7 @@ export async function runResearcher(taskId: string): Promise<void> {
   broadcast({
     type: "state_change",
     task_id: taskId,
-    payload: { task_id: taskId, from: "triaged", to: "enriched" },
+    payload: stateChangePayload(taskId, "triaged", "enriched"),
   });
 }
 
@@ -158,15 +165,12 @@ export async function onTranscriptAvailable(
   mergePayload(taskId, "transcript", output);
   logEvent({ type: "transcript_available", taskId, fingerprint: fp, payload: output });
 
+  const fromState = task.state;
   transitionTask(taskId, "transcript_available");
   broadcast({
     type: "state_change",
     task_id: taskId,
-    payload: {
-      task_id: taskId,
-      from: task.state,
-      to: "transcript_available",
-    },
+    payload: stateChangePayload(taskId, fromState, "transcript_available"),
   });
 
   broadcast({
@@ -345,7 +349,7 @@ export async function handleApproval(
     broadcast({
       type: "state_change",
       task_id: taskId,
-      payload: { task_id: taskId, from: "drafted", to: "completed" },
+      payload: stateChangePayload(taskId, "drafted", "completed"),
     });
   }
 }
@@ -376,30 +380,36 @@ export async function handleStale(taskId: string, daysIdle: number): Promise<voi
   );
 }
 
-export async function handleChat(text: string): Promise<string> {
+export async function handleChat(
+  text: string,
+  ctx?: { activeHutId?: string; hutLabel?: string }
+): Promise<string> {
+  const prefix = ctx?.hutLabel
+    ? `From ${ctx.hutLabel}'s longhouse — `
+    : "";
   const lower = text.toLowerCase();
   if (lower.startsWith("cancel ")) {
     const id = text.split(/\s+/)[1];
     if (id) {
       transitionTask(id, "cancelled");
-      return `Task ${id} cancelled.`;
+      return `${prefix}Task ${id} cancelled.`;
     }
   }
   if (lower.includes("architect")) {
-    return "Architect is ready. Say: Architect, build me a marketing agency demo for Acme Co.";
+    return `${prefix}Architect is ready. Say: Architect, build me a marketing agency demo for Acme Co.`;
   }
   if (lower.includes("kratos")) {
-    return "Kratos stands watch. He will sniff out errors and file PRs when needed.";
+    return `${prefix}Kratos stands watch. He will sniff out errors and file PRs when needed.`;
   }
   const active = getTask(
     text.match(/[A-Z]{2,4}-\d+/)?.[0] ?? ""
   );
   if (active) {
-    return `Focused on ${active.task_id} (${active.state}). ${
+    return `${prefix}Focused on ${active.task_id} (${active.state}). ${
       active.state === "drafted"
         ? "Drafts await your approval at the forge."
         : "I remain at the Hot Gates, watching."
     }`;
   }
-  return "Speak, citizen. I guard your Wrike queue. Assign a task or ask what I forge.";
+  return `${prefix}Speak, citizen. I guard your Wrike queue. Assign a task or ask what I forge.`;
 }

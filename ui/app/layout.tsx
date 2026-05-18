@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Leonidas — Wrike Agent",
-  description: "Spartan Tamagotchi for Wrike Solution Consulting",
+  description: "Leonidas village HUD for Wrike solution consulting",
 };
 
 export default function RootLayout({

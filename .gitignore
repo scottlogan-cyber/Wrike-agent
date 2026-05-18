@@ -7,3 +7,4 @@ data/*.db-*
 dist/
 *.log
 .DS_Store
+.vercel

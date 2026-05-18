@@ -2,7 +2,7 @@
 
 Leonidas and his watchdog Kratos — local agents for Wrike solution consulting.
 
-Local event-driven agent that watches your Wrike queue, researches topics, hunts Salesloft transcripts, drafts subtasks and Obsidian notes for approval, and surfaces everything in a Spartan Tamagotchi UI.
+Local event-driven agent that watches your Wrike queue, researches topics, hunts Salesloft transcripts, drafts subtasks and Obsidian notes for approval, and surfaces everything in the **Village UI** (WoW-style HUD: command bar, client huts, interior + scroll from Obsidian). See [docs/VILLAGE_UI_PIVOT.md](docs/VILLAGE_UI_PIVOT.md). For **Vercel + agent hosting and every integration**, see [docs/HOSTING_INTEGRATION_CHECKLIST.md](docs/HOSTING_INTEGRATION_CHECKLIST.md).
 
 **Repository:** [github.com/scottlogan-cyber/Wrike-agent](https://github.com/scottlogan-cyber/Wrike-agent)
 
@@ -42,7 +42,15 @@ curl -X POST http://localhost:8000/webhook/wrike \
   -d '{"taskId":"DEMO-001","title":"Integration scoping for Acme Corp"}'
 ```
 
-Watch **Roster**, **Battle Log**, and **Forge** (approval cards) update over WebSocket.
+Watch **Roster**, **Battle Log**, the **Village** (client huts), and approval cards over WebSocket.
+
+### Village HUD
+
+- Each **hut** groups tasks by `client_name` (after intake) or `task-*` before a name exists.
+- **Command bar** (fixed bottom): chat to Leonidas over the socket, plus local commands `enter <name>`, `leave`, `/hut <name>`, `/leave`.
+- **Scroll:** Obsidian-aligned markdown at `ui/public/clients/<hut-id>.md` (sample: `acme-corp.md`). The id is shown on each hut card.
+
+Run **`npm test`** for hut / command-bar unit tests.
 
 ## Architecture
 

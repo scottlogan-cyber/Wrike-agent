@@ -1,6 +1,7 @@
 "use client";
 
 import { create } from "zustand";
+import { aggregateHutsFromTasks } from "./huts";
 
 export type PetState =
   | "sleeping"
@@ -16,7 +17,11 @@ export interface TaskView {
   task_id: string;
   title: string;
   state: string;
+  /** Set after intake; used to group huts in the Village HUD */
+  client_name?: string | null;
 }
+
+export type VillageScene = "village" | "interior";
 
 export interface LogEntry {
   ts: string;
@@ -42,6 +47,10 @@ interface AgentStore {
   mood: string;
   stamina: number;
   draftProgress: string;
+  /** WoW-style village: map vs inside a client hut */
+  scene: VillageScene;
+  /** Slug matching `public/clients/{activeHutId}.md` */
+  activeHutId: string | null;
   setConnected: (v: boolean) => void;
   setPetState: (s: PetState) => void;
   setFocusedTask: (id: string | null) => void;
@@ -50,6 +59,8 @@ interface AgentStore {
   addChat: (role: "user" | "leonidas", text: string) => void;
   upsertTask: (t: TaskView) => void;
   setMood: (m: string) => void;
+  enterHut: (hutId: string) => void;
+  leaveHut: () => void;
 }
 
 export const useAgentStore = create<AgentStore>((set, get) => ({
@@ -63,6 +74,8 @@ export const useAgentStore = create<AgentStore>((set, get) => ({
   mood: "At rest",
   stamina: 80,
   draftProgress: "0 / 0 forged",
+  scene: "village",
+  activeHutId: null,
   setConnected: (v) => set({ connected: v }),
   setPetState: (petState) => set({ petState }),
   setFocusedTask: (focusedTaskId) => set({ focusedTaskId }),
@@ -83,10 +96,22 @@ export const useAgentStore = create<AgentStore>((set, get) => ({
   addChat: (role, text) =>
     set({ chatMessages: [...get().chatMessages, { role, text }] }),
   upsertTask: (t) => {
-    const tasks = [...get().tasks.filter((x) => x.task_id !== t.task_id), t];
+    const prev = get().tasks.find((x) => x.task_id === t.task_id);
+    const merged: TaskView = {
+      ...t,
+      client_name: t.client_name ?? prev?.client_name ?? null,
+    };
+    const tasks = [
+      ...get().tasks.filter((x) => x.task_id !== t.task_id),
+      merged,
+    ];
     set({ tasks: tasks.sort((a, b) => a.task_id.localeCompare(b.task_id)) });
   },
   setMood: (mood) => set({ mood }),
+  enterHut: (activeHutId) =>
+    set({ scene: "interior", activeHutId, petState: "thinking", mood: "Entering the longhouse…" }),
+  leaveHut: () =>
+    set({ scene: "village", activeHutId: null, mood: "At the Hot Gates" }),
 }));
 
 let socket: WebSocket | null = null;
@@ -163,12 +188,18 @@ export function connectAgentWs(): void {
         break;
       }
       case "state_change": {
-        const p = msg.payload as { task_id: string; to: string };
+        const p = msg.payload as {
+          task_id: string;
+          to: string;
+          title?: string;
+          client_name?: string | null;
+        };
         const t = store.tasks.find((x) => x.task_id === p.task_id);
         store.upsertTask({
           task_id: p.task_id,
-          title: t?.title ?? p.task_id,
+          title: p.title ?? t?.title ?? p.task_id,
           state: p.to,
+          client_name: p.client_name ?? t?.client_name,
         });
         if (p.to === "enriched") {
           store.setPetState("thinking");
@@ -245,8 +276,21 @@ export function sendWs(message: unknown): void {
 }
 
 export function sendChat(text: string): void {
-  useAgentStore.getState().addChat("user", text);
-  sendWs({ type: "chat", payload: { text } });
+  const state = useAgentStore.getState();
+  const { activeHutId, tasks } = state;
+  const hut = activeHutId
+    ? aggregateHutsFromTasks(tasks).find((h) => h.id === activeHutId)
+    : undefined;
+
+  state.addChat("user", text);
+  sendWs({
+    type: "chat",
+    payload: {
+      text,
+      active_hut_id: activeHutId ?? undefined,
+      hut_label: hut?.label,
+    },
+  });
 }
 
 export function sendApproval(
