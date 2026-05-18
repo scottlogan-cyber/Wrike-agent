@@ -20,6 +20,8 @@ npm run dev
 - UI: http://localhost:3000
 - WebSocket: `ws://localhost:8000/ws?token=leonidas-dev-token`
 
+**Deploy the Village UI to Vercel:** [docs/DEPLOY_VERCEL.md](docs/DEPLOY_VERCEL.md)
+
 ## Smoke tests
 
 ```bash
